@@ -89,6 +89,25 @@ const handleDeleteObject = async (object) => {
     console.error(error);
   });
 }
+
+const handleFindObject = async (object) => {
+  await axios.get(`${VITE_API_URL}/object/query/${object.id}/${object.path}`)
+    .then((response) => {
+      console.log(response.data);
+    }).catch((error) => {
+      console.error(error);
+    });
+}
+
+const handleSaveObject = async (object) => {
+  await axios.put(`${VITE_API_URL}/object/${object.id}`, object)
+    .then(() => {
+      getHotels();
+    }).catch((error) => {
+      console.error(error);
+    });
+}
+
 </script>
 
 <template>
@@ -121,7 +140,8 @@ const handleDeleteObject = async (object) => {
             </div>
           </div>
           <HotelsItem @onSelect="handleHotelClick(hotel)" v-for="hotel in hotels" :key="hotel?.id" :hotel="hotel"
-            :selected="selectedHotel?.id === hotel?.id" @onDelete="handleDeleteObject(hotel)" />
+            :selected="selectedHotel?.id === hotel?.id" @onDelete="handleDeleteObject(hotel)"
+            @onFind="handleFindObject(hotel)" @onSave="handleSaveObject(hotel)" />
         </div>
         <div class="col-span-1 flex flex-col gap-2">
           <div class="h-12">
@@ -147,7 +167,8 @@ const handleDeleteObject = async (object) => {
             </div>
           </div>
           <FloorItem @onSelect="handleFloorClick(floor)" @onDelete="handleDeleteObject(floor)" v-for="floor in floors"
-            :key="floor.id" :floor="floor" :selected="selectedFloor?.id === floor?.id" />
+            :key="floor.id" :floor="floor" :selected="selectedFloor?.id === floor?.id" @onFind="handleFindObject(floor)"
+            @onSave="handleSaveObject(floor)" />
         </div>
         <div class="col-span-1 flex flex-col gap-2">
           <div class="h-12">

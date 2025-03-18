@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue';
+import DropDownMenu from './DropDownMenu.vue';
 const { floor, selected } = defineProps({
   floor: {
     type: Object,
@@ -18,13 +19,31 @@ const totalMeter = computed(() => {
   return floor?.children?.reduce((acc, room) => acc + room?.children?.length, 0);
 })
 
+const emit = defineEmits(['onDelete', 'onFind', 'onSave']);
+
+const onHandleDelete = async (floor) => {
+  await emit('onDelete', floor);
+}
+
+const handleSelect = async (floor) => {
+  await emit('onSelect', floor);
+}
+
+const onHandleFind = async (floor) => {
+  await emit('onFind', floor);
+}
+
+const onHandleSave = async (floor) => {
+  await emit('onSave', floor);
+}
+
 </script>
 
 <template>
   <div class="relative">
-    <DropDownMenu :data="floor" @onDelete="onHandleDelete" />
+    <DropDownMenu :data="floor" @onDelete="onHandleDelete" @onFind="onHandleFind" @onSave="onHandleSave" />
     <div :class="{ 'bg-gray-100': selected, 'bg-white': !selected, active: selected }"
-      class="flex flex-col p-2 rounded-lg cursor-pointer card-item">
+      class="flex flex-col p-2 rounded-lg cursor-pointer card-item" @click="handleSelect(floor)">
       <h2 class="font-semibold">{{ floor.name }}</h2>
       <div class="text-[10px] mb-2 capitalize">{{ floor.type }}</div>
       <div class="flex items-center gap-2 justify-between">
