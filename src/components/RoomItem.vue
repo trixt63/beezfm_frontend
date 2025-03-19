@@ -1,4 +1,6 @@
 <script setup>
+import DropDownMenu from './DropDownMenu.vue';
+
 const emit = defineEmits(['onDelete', 'onSelect']);
 const { room, selected } = defineProps({
   room: {

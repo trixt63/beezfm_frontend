@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue';
 import DropDownMenu from './DropDownMenu.vue';
-const emit = defineEmits(['onDelete', 'onSelect']);
+const emit = defineEmits(['onDelete', 'onSelect', 'onFind', 'onSave']);
 const { hotel, selected } = defineProps({
   hotel: {
     type: Object,
@@ -36,11 +36,20 @@ const onHandleDelete = async (hotel) => {
 const handleSelect = async (hotel) => {
   await emit('onSelect', hotel);
 }
+
+const onHandleFind = async (hotel) => {
+  await emit('onFind', hotel);
+}
+
+const onHandleSave = async (hotel) => {
+  await emit('onSave', hotel);
+}
+
 </script>
 
 <template>
   <div class="relative">
-    <DropDownMenu :data="hotel" @onDelete="onHandleDelete" />
+    <DropDownMenu :data="hotel" @onDelete="onHandleDelete" @onFind="onHandleFind" @onSave="onHandleSave" />
     <div :class="{ 'bg-gray-100': selected, 'bg-white': !selected, active: selected }"
       class="flex flex-col p-2 rounded-lg cursor-pointer card-item" @click="handleSelect(hotel)">
       <h2 class="font-semibold">{{ hotel?.name }}</h2>

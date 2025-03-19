@@ -24,7 +24,7 @@ onMounted(() => {
 });
 
 const getHotels = async () => {
-  await axios.get(`${VITE_API_URL}/object/tree?limit=100&offset=0`)
+  await axios.get(`${VITE_API_URL}/objects/tree?limit=100&offset=0`)
     .then((response) => {
       hotels.value = response.data;
       handleHotelClick(selectedHotel.value || hotels.value[0]);
@@ -35,7 +35,7 @@ const getHotels = async () => {
 
 const getObjectDetails = async () => {
   if (!selectedRoom.value) return;
-  await axios.get(`${VITE_API_URL}/object/${selectedRoom.value.id}?include_children=true&include_datapoints=true`)
+  await axios.get(`${VITE_API_URL}/objects/${selectedRoom.value.id}?include_children=true&include_datapoints=true`)
     .then((response) => {
       objects.value = response.data;
     }).catch((error) => {
@@ -73,7 +73,7 @@ const closeModalCreate = async () => {
 };
 
 const onCreateObject = async (data) => {
-  await axios.post(`${VITE_API_URL}/object`, data)
+  await axios.post(`${VITE_API_URL}/objects`, data)
     .then(() => {
       getHotels();
     }).catch((error) => {
@@ -83,12 +83,31 @@ const onCreateObject = async (data) => {
 };
 
 const handleDeleteObject = async (object) => {
-  await axios.delete(`${VITE_API_URL}/object/${object.id}`).then(async () => {
+  await axios.delete(`${VITE_API_URL}/objects/${object.id}`).then(async () => {
     await getHotels();
   }).catch((error) => {
     console.error(error);
   });
 }
+
+const handleFindObject = async (object) => {
+  await axios.get(`${VITE_API_URL}/objects/query/${object.id}/${object.path}`)
+    .then((response) => {
+      console.log(response.data);
+    }).catch((error) => {
+      console.error(error);
+    });
+}
+
+const handleSaveObject = async (object) => {
+  await axios.put(`${VITE_API_URL}/objects/${object.id}`, object)
+    .then(() => {
+      getHotels();
+    }).catch((error) => {
+      console.error(error);
+    });
+}
+
 </script>
 
 <template>
@@ -121,7 +140,8 @@ const handleDeleteObject = async (object) => {
             </div>
           </div>
           <HotelsItem @onSelect="handleHotelClick(hotel)" v-for="hotel in hotels" :key="hotel?.id" :hotel="hotel"
-            :selected="selectedHotel?.id === hotel?.id" @onDelete="handleDeleteObject(hotel)" />
+            :selected="selectedHotel?.id === hotel?.id" @onDelete="handleDeleteObject(hotel)"
+            @onFind="handleFindObject(hotel)" @onSave="handleSaveObject(hotel)" />
         </div>
         <div class="col-span-1 flex flex-col gap-2">
           <div class="h-12">
@@ -147,7 +167,8 @@ const handleDeleteObject = async (object) => {
             </div>
           </div>
           <FloorItem @onSelect="handleFloorClick(floor)" @onDelete="handleDeleteObject(floor)" v-for="floor in floors"
-            :key="floor.id" :floor="floor" :selected="selectedFloor?.id === floor?.id" />
+            :key="floor.id" :floor="floor" :selected="selectedFloor?.id === floor?.id" @onFind="handleFindObject(floor)"
+            @onSave="handleSaveObject(floor)" />
         </div>
         <div class="col-span-1 flex flex-col gap-2">
           <div class="h-12">

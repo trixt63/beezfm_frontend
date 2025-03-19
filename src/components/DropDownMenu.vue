@@ -42,8 +42,8 @@ const closeModalEdit = () => {
   isOpenModalEdit.value = false;
 }
 
-const onSaveObject = (data) => {
-  emit('onSave', data);
+const onSaveObject = async (data) => {
+  await emit('onSave', data);
   isOpenModalEdit.value = false;
 }
 
