@@ -1,22 +1,28 @@
 <script setup>
 import { computed } from 'vue';
 import DropDownMenu from './DropDownMenu.vue';
+import DataPoint from './DataPoint.vue';
 const emit = defineEmits(['onDelete', 'onSelect', 'onFind', 'onSave']);
-const { hotel, selected } = defineProps({
+const { hotel, selectedData, pathFilterActive } = defineProps({
   hotel: {
     type: Object,
     required: true
   },
-  selected: {
-    type: Boolean,
+  selectedData: {
+    type: Object,
     required: false,
-    default: false
+    default: () => { }
   },
   onSelect: {
     type: Function,
     required: false,
     default: () => { }
   },
+  pathFilterActive: {
+    type: Boolean,
+    required: false,
+    default: false
+  }
 })
 const totalFloors = computed(() => {
   return hotel?.children?.length;
@@ -44,13 +50,25 @@ const onHandleFind = async (hotel) => {
 const onHandleSave = async (hotel) => {
   await emit('onSave', hotel);
 }
+const isSelected = computed(() => {
+  return selectedData?.id === hotel?.id;
+})
 
+const dataPoint = computed(() => {
+  if (pathFilterActive) {
+    return hotel?.datapoints?.length > 0 ? hotel?.datapoints : [];
+  }
+  const isSelectedCurrent = selectedData?.id === hotel?.id;
+  return hotel?.datapoints?.length > 0 ? hotel?.datapoints : isSelectedCurrent ? selectedData?.datapoints : [];
+})
 </script>
+
 
 <template>
   <div class="relative">
-    <DropDownMenu :data="hotel" @onDelete="onHandleDelete" @onFind="onHandleFind" @onSave="onHandleSave" />
-    <div :class="{ 'bg-gray-100': selected, 'bg-white': !selected, active: selected }"
+    <DropDownMenu :data="hotel" @onDelete="onHandleDelete" @onFind="onHandleFind" @onSave="onHandleSave"
+      :isSelected="isSelected" />
+    <div :class="{ 'bg-gray-100': isSelected, 'bg-white': !isSelected, active: isSelected }"
       class="flex flex-col p-2 rounded-lg cursor-pointer card-item" @click="handleSelect(hotel)">
       <h2 class="font-semibold">{{ hotel?.name }}</h2>
       <div class="text-[10px] mb-2">{{ hotel?.type }}</div>
@@ -74,6 +92,7 @@ const onHandleSave = async (hotel) => {
           <path d="M6.66666 9.33334H9.33332" stroke="white" stroke-linecap="round" />
         </svg>
       </div>
+      <DataPoint :dataPoint="dataPoint" />
     </div>
   </div>
 

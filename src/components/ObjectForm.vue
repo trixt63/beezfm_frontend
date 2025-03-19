@@ -20,16 +20,16 @@ const mapType = computed(() => {
 });
 const formData = ref({
   name: props.data?.name || '',
-  location_details: props.data?.location_details || '',
+  // location_details: props.data?.location_details || '',
   type: mapType.value,
   parent_id: props.parentId
   // description: ''
 });
 
-const emit = defineEmits(['save', 'onClose']);
+const emit = defineEmits(['onSave', 'onClose']);
 
 const handleSubmit = async () => {
-  await emit('save', formData.value);
+  await emit('onSave', formData.value);
 };
 
 const handleClose = async () => {
@@ -51,7 +51,7 @@ const handleClose = async () => {
         <label for="location_details" class="block text-sm font-medium text-gray-700">Location Details</label>
         <textarea v-model="formData.location_details" id="location_details"
           class="mt-1 block w-full border rounded-md border-gray-300 focus:border-primary focus:ring-primary py-1 px-2"
-          required rows="3"></textarea>
+          rows="3"></textarea>
       </div>
       <!-- <div>
         <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
