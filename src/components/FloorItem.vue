@@ -1,12 +1,19 @@
 <script setup>
 import { computed } from 'vue';
 import DropDownMenu from './DropDownMenu.vue';
-const { floor, selected } = defineProps({
+import DataPoint from './DataPoint.vue';
+const emit = defineEmits(['onDelete', 'onFind', 'onSave', 'onSelect']);
+const { floor, selectedData, pathFilterActive } = defineProps({
   floor: {
     type: Object,
     required: true
   },
-  selected: {
+  selectedData: {
+    type: Object,
+    required: false,
+    default: () => { }
+  },
+  pathFilterActive: {
     type: Boolean,
     required: false,
     default: false
@@ -19,7 +26,6 @@ const totalMeter = computed(() => {
   return floor?.children?.reduce((acc, room) => acc + room?.children?.length, 0);
 })
 
-const emit = defineEmits(['onDelete', 'onFind', 'onSave']);
 
 const onHandleDelete = async (floor) => {
   await emit('onDelete', floor);
@@ -36,13 +42,24 @@ const onHandleFind = async (floor) => {
 const onHandleSave = async (floor) => {
   await emit('onSave', floor);
 }
+const isSelected = computed(() => {
+  return selectedData?.id === floor?.id;
+})
 
+const dataPoint = computed(() => {
+  if (pathFilterActive) {
+    return floor?.datapoints?.length > 0 ? floor?.datapoints : [];
+  }
+  const isSelectedCurrent = selectedData?.id === floor?.id;
+  return floor?.datapoints?.length > 0 ? floor?.datapoints : isSelectedCurrent ? selectedData?.datapoints : [];
+})
 </script>
 
 <template>
   <div class="relative">
-    <DropDownMenu :data="floor" @onDelete="onHandleDelete" @onFind="onHandleFind" @onSave="onHandleSave" />
-    <div :class="{ 'bg-gray-100': selected, 'bg-white': !selected, active: selected }"
+    <DropDownMenu :data="floor" @onDelete="onHandleDelete" @onFind="onHandleFind" @onSave="onHandleSave"
+      :isSelected="isSelected" />
+    <div :class="{ 'bg-gray-100': isSelected, 'bg-white': !isSelected, active: isSelected }"
       class="flex flex-col p-2 rounded-lg cursor-pointer card-item" @click="handleSelect(floor)">
       <h2 class="font-semibold">{{ floor.name }}</h2>
       <div class="text-[10px] mb-2 capitalize">{{ floor.type }}</div>
@@ -60,6 +77,7 @@ const onHandleSave = async (floor) => {
             stroke="white" stroke-linecap="round" />
         </svg>
       </div>
+      <DataPoint :dataPoint="dataPoint" />
     </div>
   </div>
 </template>

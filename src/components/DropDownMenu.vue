@@ -9,6 +9,11 @@ const props = defineProps({
     type: Object,
     required: true
   },
+  isSelected: {
+    type: Boolean,
+    required: false,
+    default: false
+  }
 })
 
 const isOpenDropDown = ref(false);
@@ -52,10 +57,18 @@ const openModalFind = () => {
   isOpenModalFind.value = !isOpenModalFind.value;
 }
 
-const onFind = () => {
+const onFind = async () => {
+  const path = document.querySelector('input[name="path"]').value;
+
+  const findData = {
+    path: path,
+    parent_id: props.data.id,
+    type: props.data.type
+  }
+  await emit('onFind', findData);
+
   isOpenDropDown.value = false;
   isOpenModalFind.value = !isOpenModalFind.value;
-  emit('onFind', props.data);
 }
 
 const closeModalFind = () => {
@@ -66,13 +79,13 @@ const closeModalFind = () => {
 <template>
   <button class="text-xs text-red-500 absolute top-1 right-1 cursor-pointer rounded-md p-1 z-10" @click="openDropDown">
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path
+      <path :class="isSelected ? 'stroke-white' : 'stroke-primary'"
         d="M3.33333 9.33332C4.06971 9.33332 4.66667 8.73637 4.66667 7.99999C4.66667 7.26361 4.06971 6.66666 3.33333 6.66666C2.59695 6.66666 2 7.26361 2 7.99999C2 8.73637 2.59695 9.33332 3.33333 9.33332Z"
         stroke="white" />
-      <path
+      <path :class="isSelected ? 'stroke-white' : 'stroke-primary'"
         d="M8 9.33332C8.73638 9.33332 9.33333 8.73637 9.33333 7.99999C9.33333 7.26361 8.73638 6.66666 8 6.66666C7.26362 6.66666 6.66666 7.26361 6.66666 7.99999C6.66666 8.73637 7.26362 9.33332 8 9.33332Z"
         stroke="white" />
-      <path
+      <path :class="isSelected ? 'stroke-white' : 'stroke-primary'"
         d="M12.6667 9.33332C13.403 9.33332 14 8.73637 14 7.99999C14 7.26361 13.403 6.66666 12.6667 6.66666C11.9303 6.66666 11.3333 7.26361 11.3333 7.99999C11.3333 8.73637 11.9303 9.33332 12.6667 9.33332Z"
         stroke="white" />
     </svg>
@@ -118,7 +131,7 @@ const closeModalFind = () => {
       <h2 class="font-bold mb-4">Edit {{ data.name }}</h2>
     </template>
     <template #content>
-      <ObjectForm @save="onSaveObject" @onClose="closeModalEdit" :type="modalEditType" :parentId="modalEditParentId"
+      <ObjectForm @onSave="onSaveObject" @onClose="closeModalEdit" :type="modalEditType" :parentId="modalEditParentId"
         :data="data" />
     </template>
   </Modal>
@@ -127,9 +140,9 @@ const closeModalFind = () => {
       <h2 class="font-bold mb-4">Find in {{ data.name }}</h2>
     </template>
     <template #content>
-      <form @submit.prevent="onFind" class="">
+      <form @submit.prevent="onFind" class="w-xs">
         <div class="flex flex-col gap-2">
-          <input type="text" required class="w-full p-2 rounded-md border border-gray-300"
+          <input type="text" name="path" required class="w-full p-2 rounded-md border border-gray-300"
             placeholder="Search by path" />
           <div class="flex items-center justify-end gap-2">
             <button @click="closeModalFind"
